@@ -1,0 +1,252 @@
+# Sensor Maintenance Data Engineering Pipeline
+
+## Project Overview
+
+This project implements an end-to-end data engineering pipeline using
+PySpark to process manufacturing sensor and maintenance data.
+
+The pipeline reads raw sensor data from CSV, performs data profiling and
+validation, standardizes and transforms the data into a Silver layer, and
+creates aggregated Gold datasets for maintenance and failure analysis.
+
+The processed datasets are stored in Parquet format for efficient
+downstream analytics.
+
+## Dataset
+
+The dataset contains 500 manufacturing sensor observations collected from
+50 pieces of equipment.
+
+It includes operational and maintenance information such as:
+
+- Voltage, current, power, and humidity readings
+- Equipment and ambient temperature
+- Vibration measurements
+- Equipment operational status and criticality
+- Fault status and failure type
+- Maintenance type, repair time, and maintenance cost
+- Historical failure information
+- Predictive maintenance trigger indicators
+
+The dataset is used to build a data pipeline that prepares sensor data for
+equipment reliability, failure, and predictive maintenance analysis.
+
+## Tech Stack
+
+- Python
+- PySpark 4.2.0
+- Apache Spark
+- Spark SQL
+- Parquet
+- Git
+
+## Project Architecture
+
+The project follows a layered data engineering architecture:
+
+Raw CSV Data
+    ↓
+Data Profiling and Validation
+    ↓
+Silver Layer
+    ↓
+Business Transformations
+    ↓
+Gold Layer
+    ↓
+Spark SQL Analytics
+
+## Data Pipeline
+
+### Raw Layer
+
+The raw manufacturing sensor dataset is ingested from CSV using PySpark
+with schema inference enabled.
+
+Initial profiling is performed to understand:
+
+- Dataset schema
+- Row and partition counts
+- Null values
+- Duplicate records
+- Sensor and equipment cardinality
+- Fault and failure distributions
+- Relationships between failure types and predictive maintenance triggers
+
+### Silver Layer
+
+The Silver layer prepares the raw data for downstream analytics.
+
+Transformations include:
+
+- Standardizing column names
+- Validating numerical and categorical values
+- Creating human-readable fault and maintenance flags
+- Calculating the difference between equipment and ambient temperature
+- Writing the cleaned and transformed dataset in Parquet format
+
+### Gold Layer
+
+The Gold layer creates business-ready aggregated datasets.
+
+Two Gold datasets are produced:
+
+**Equipment Maintenance Summary**
+
+Aggregates maintenance and reliability metrics by equipment, including:
+
+- Total observations
+- Total faults
+- Fault rate
+- Predictive maintenance triggers
+- Average temperature
+- Average vibration
+- Average maintenance cost
+- Average repair time
+
+**Failure Summary**
+
+Aggregates metrics by failure type, including:
+
+- Total observations
+- Total faults
+- Maintenance triggers
+- Average maintenance cost
+- Average repair time
+
+## Spark SQL Analysis
+
+The Silver DataFrame is registered as a temporary Spark SQL view to enable
+SQL-based analysis of the transformed sensor data.
+
+The analysis includes:
+
+- Equipment-level fault and maintenance trigger aggregation
+- Failure-type analysis
+- Average maintenance cost and repair time calculations
+- Fault rate calculation using conditional SQL aggregation
+
+This demonstrates the use of both the PySpark DataFrame API and Spark SQL
+within the same data pipeline.
+
+## Project Structure
+
+```text
+sensor_maintenance_data_engineering/
+│
+├── data/
+│   └── sensor_maintenance_data.csv
+│
+├── src/
+│   └── sensor_pipeline.py
+│
+├── output/
+│   ├── silver/
+│   │   └── sensor_maintenance/
+│   └── gold/
+│       ├── equipment_summary/
+│       └── failure_summary/
+│
+├── .gitignore
+├── requirements.txt
+└── README.md
+```
+
+## Setup and Installation
+
+### Prerequisites
+
+Ensure the following are installed:
+
+- Python
+- Java
+- Git
+
+### 1. Clone the Repository
+
+```bash
+git clone <repository-url>
+cd sensor_maintenance_data_engineering
+```
+
+### 2. Create a Virtual Environment
+
+```bash
+python -m venv .venv
+```
+
+Activate it on Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+### 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Run the Pipeline
+
+```bash
+python src/sensor_pipeline.py
+```
+
+The pipeline reads the raw CSV dataset, performs the Silver and Gold
+transformations, writes the processed datasets in Parquet format, and
+executes the Spark SQL analysis.
+
+## Generated Outputs
+
+Running the pipeline generates the following datasets:
+
+### Silver
+
+`output/silver/sensor_maintenance/`
+
+Contains standardized and transformed sensor-level data stored in Parquet
+format.
+
+### Gold - Equipment Summary
+
+`output/gold/equipment_summary/`
+
+Contains equipment-level reliability and maintenance metrics.
+
+### Gold - Failure Summary
+
+`output/gold/failure_summary/`
+
+Contains failure-type-level maintenance and fault metrics.
+
+The `output/` directory is excluded from Git using `.gitignore` because
+these datasets are generated by the pipeline and can be recreated by
+running the application.
+
+## Key Insights
+
+Initial profiling and analysis of the sensor maintenance dataset identified:
+
+- 500 sensor observations across 50 pieces of equipment
+- Each equipment ID contains 10 observations
+- 167 observations contain detected faults, while 333 contain no detected fault
+- 125 observations trigger predictive maintenance
+- Failure types include Overload, Overheating, and None
+- All Overload observations are associated with a predictive maintenance trigger in the provided dataset
+- Equipment criticality is evenly distributed between High and Medium
+- The dataset contains no null values or exact duplicate rows
+
+The Gold layer provides equipment-level and failure-level metrics that can
+be used for maintenance monitoring and downstream analytics.
+
+## Future Improvements
+
+Potential extensions to the project include:
+
+- Processing larger sensor datasets using distributed Spark execution
+- Adding automated data quality validation rules
+- Implementing incremental data processing
+- Adding partitioned Parquet output for larger datasets
+- Orchestrating the pipeline using a workflow scheduler
+- Loading Gold datasets into a data warehouse for BI reporting
