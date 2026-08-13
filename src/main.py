@@ -25,9 +25,10 @@ spark = create_spark_session()
 # ============================================================
 
 sensor_df = read_sensor_data(spark)
+# sensor_df.printSchema()
 
-
-# ============================================================
+# =======================================
+# =====================
 # 3. INITIAL DATA PROFILING
 # ============================================================
 
@@ -285,6 +286,10 @@ gold_equipment_summary.write \
     .mode("overwrite") \
     .parquet(str(GOLD_EQUIPMENT_OUTPUT_PATH))
 
+gold_equipment_summary.coalesce(1).write \
+    .mode("overwrite") \
+    .option("header", "true") \
+    .csv("output/bi/equipment_summary")
 # ============================================================
 # GOLD LAYER - FAILURE TYPE SUMMARY
 # ============================================================
@@ -300,6 +305,12 @@ gold_failure_summary.show(truncate=False)
 gold_failure_summary.write \
     .mode("overwrite") \
     .parquet(str(GOLD_FAILURE_OUTPUT_PATH))
+
+gold_failure_summary.coalesce(1).write \
+    .mode("overwrite") \
+    .option("header", "true") \
+    .csv("output/bi/failure_summary")
+
 
 # ============================================================
 # SPARK SQL ANALYSIS

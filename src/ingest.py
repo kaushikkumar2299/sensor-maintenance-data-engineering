@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 
 from src.config import RAW_DATA_PATH
 
+from src.schema import sensor_schema
 
 # ============================================================
 # CREATE SPARK SESSION
@@ -30,7 +31,7 @@ def read_sensor_data(spark):
         spark.read
         .format("csv")
         .option("header", "true")
-        .option("inferSchema", "true")
+        .schema(sensor_schema)
         .load(str(RAW_DATA_PATH))
     )
 
